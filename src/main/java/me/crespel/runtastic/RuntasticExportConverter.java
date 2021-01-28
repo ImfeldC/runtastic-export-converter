@@ -25,15 +25,16 @@ public class RuntasticExportConverter {
 
 	protected final ExportConverter converter = new ExportConverter();
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		RuntasticExportConverter converter = new RuntasticExportConverter();
-		try {
+//		try {
 			converter.run(args);
-		} catch (Throwable t) {
-			System.out.println(t);
-			converter.printUsage();
-			System.exit(1);
-		}
+//		} 
+//		catch (Throwable t) {
+//			System.out.println(t);
+//			converter.printUsage();
+//			System.exit(1);
+//		}
 	}
 
 	public void run(String[] args) throws Exception {

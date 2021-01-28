@@ -53,57 +53,58 @@ public class SportSessionParser {
 	}
 
 	public SportSession parseSportSession(File file, boolean full) throws FileNotFoundException, IOException {
-		try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
-			SportSession sportSession = parseSportSession(is);
-			if (full) {
-				File elevationDataFile = new File(new File(file.getParentFile(), ELEVATION_DATA_DIR), file.getName());
-				if (elevationDataFile.exists()) {
-					sportSession.setElevationData(parseElevationData(elevationDataFile));
-				}
-				// read GPS data from JSON file
-				File gpsDataFileJSON = new File(new File(file.getParentFile(), GPS_DATA_DIR), file.getName());
-				if (gpsDataFileJSON.exists()) {
-					sportSession.setGpsData(parseGpsData(gpsDataFileJSON));
-				}
-				// read GPS data from GPX file (the runtastic export contains GPS data as GPX files, starting from April-2020)
-				File gpsDataFileGPX = new File(new File(file.getParentFile(), GPS_DATA_DIR), FilenameUtils.getBaseName(file.getName()) + ".gpx");
-				if (gpsDataFileGPX.exists()) {
-					// Load GPX file
-					try {
-						JAXBContext ctx = JAXBContext.newInstance(GpxType.class);
-						Unmarshaller um = ctx.createUnmarshaller();
-						JAXBElement<GpxType> root = (JAXBElement<GpxType>)um.unmarshal(gpsDataFileGPX);
-						GpxType gpx = root.getValue();
-						sportSession.setGpx(gpx);
-					} catch (JAXBException e) {
-						throw new RuntimeException(e);
-					}
-				}
-				File heartRateDataFile = new File(new File(file.getParentFile(), HEARTRATE_DATA_DIR), file.getName());
-				if (heartRateDataFile.exists()) {
-					sportSession.setHeartRateData(parseHeartRateData(heartRateDataFile));
+		InputStream is = getInputStream(file);
+		SportSession sportSession = parseSportSession(is);
+		if (full) {
+			File elevationDataFile = getFile(new File(new File(file.getParentFile(), ELEVATION_DATA_DIR), file.getName()));
+			if (elevationDataFile.exists()) {
+				sportSession.setElevationData(parseElevationData(elevationDataFile));
+			}
+			// read GPS data from JSON file
+			File gpsDataFileJSON = getFile(new File(new File(file.getParentFile(), GPS_DATA_DIR), file.getName()));
+			if (gpsDataFileJSON.exists()) {
+				sportSession.setGpsData(parseGpsData(gpsDataFileJSON));
+			}
+			// read GPS data from GPX file (the runtastic export contains GPS data as GPX files, starting from April-2020)
+			File gpsDataFileGPX = getFile(new File(new File(file.getParentFile(), GPS_DATA_DIR), FilenameUtils.getBaseName(file.getName()) + ".gpx"));
+			if (gpsDataFileGPX.exists()) {
+				// Load GPX file
+				try {
+					JAXBContext ctx = JAXBContext.newInstance(GpxType.class);
+					Unmarshaller um = ctx.createUnmarshaller();
+					JAXBElement<GpxType> root = (JAXBElement<GpxType>)um.unmarshal(gpsDataFileGPX);
+					GpxType gpx = root.getValue();
+					sportSession.setGpx(gpx);
+				} catch (JAXBException e) {
+					throw new RuntimeException(e);
 				}
 			}
-
-			// read photo session data (\Photos\Images-meta-data\Sport-session-albums)
-			File photoSessionDataFile = new File(new File(file.getParentFile().getParentFile(), PHOTOS_SPORT_SESSION_ALBUMS_DIR), file.getName());
-			if (photoSessionDataFile.exists()) {
-				sportSession.setSessionAlbum(parseSportSessionAlbumsData(photoSessionDataFile));
-				// read photo meta data (images mate data; \Photos\Images-meta-data)
-				List<ImagesMetaData> images = new ArrayList<>();
-				for (String photo : sportSession.getSessionAlbum().getPhotosIds()) {
-					File photoMetaDataFile = new File(new File(file.getParentFile().getParentFile(), PHOTOS_META_DATA_DIR), photo + ".json");
-					if (photoMetaDataFile.exists()) {
-						images.add(parseImagesMetaData(photoMetaDataFile));
-					}
-				}
-				Collections.sort(images);
-				sportSession.setImages(images);
+			File heartRateDataFile = getFile(new File(new File(file.getParentFile(), HEARTRATE_DATA_DIR), file.getName()));
+			if (heartRateDataFile.exists()) {
+				sportSession.setHeartRateData(parseHeartRateData(heartRateDataFile));
 			}
-			// read and add user
-			sportSession.setUser(parseUser(new File(new File(file.getParentFile().getParentFile(), USER_DIR), "user.json")));
-			return sportSession;
 		}
+
+		// read photo session data (\Photos\Images-meta-data\Sport-session-albums)
+		// From 2021 in general the file name changed from "ed613898-dd1f-4ea5-a1c8-f89bcf882dd8.json" to "2011-05-08_07-40-05-UTC_ed613898-dd1f-4ea5-a1c8-f89bcf882dd8.json"
+		// But the "Sport-session-albums" are still w/o date and time.
+		File photoSessionDataFile = getFile(new File(new File(file.getParentFile().getParentFile(), PHOTOS_SPORT_SESSION_ALBUMS_DIR), sportSession.getId()+".json"));
+		if (photoSessionDataFile.exists()) {
+			sportSession.setSessionAlbum(parseSportSessionAlbumsData(photoSessionDataFile));
+			// read photo meta data (images mate data; \Photos\Images-meta-data)
+			List<ImagesMetaData> images = new ArrayList<>();
+			for (String photo : sportSession.getSessionAlbum().getPhotosIds()) {
+				File photoMetaDataFile = getFile(new File(new File(file.getParentFile().getParentFile(), PHOTOS_META_DATA_DIR), photo + ".json"));
+				if (photoMetaDataFile.exists()) {
+					images.add(parseImagesMetaData(photoMetaDataFile));
+				}
+			}
+			Collections.sort(images);
+			sportSession.setImages(images);
+		}
+		// read and add user
+		sportSession.setUser(parseUser(getFile(new File(new File(file.getParentFile().getParentFile(), USER_DIR), "user.json"))));
+		return sportSession;
 	}
 
 	public SportSession parseSportSession(InputStream is) throws FileNotFoundException, IOException {
@@ -112,9 +113,7 @@ public class SportSessionParser {
 
 
 	public List<ElevationData> parseElevationData(File file) throws FileNotFoundException, IOException {
-		try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
-			return parseElevationData(is);
-		}
+		return parseElevationData(getInputStream(file));
 	}
 
 	public List<ElevationData> parseElevationData(InputStream is) throws FileNotFoundException, IOException {
@@ -123,9 +122,7 @@ public class SportSessionParser {
 
 
 	public List<GpsData> parseGpsData(File file) throws FileNotFoundException, IOException {
-		try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
-			return parseGpsData(is);
-		}
+		return parseGpsData(getInputStream(file));
 	}
 
 	public List<GpsData> parseGpsData(InputStream is) throws FileNotFoundException, IOException {
@@ -134,9 +131,7 @@ public class SportSessionParser {
 
 
 	public List<HeartRateData> parseHeartRateData(File file) throws FileNotFoundException, IOException {
-		try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
-			return parseHeartRateData(is);
-		}
+		return parseHeartRateData(getInputStream(file));
 	}
 
 	public List<HeartRateData> parseHeartRateData(InputStream is) throws FileNotFoundException, IOException {
@@ -145,9 +140,7 @@ public class SportSessionParser {
 
 
 	public SportSessionAlbums parseSportSessionAlbumsData(File file) throws FileNotFoundException, IOException {
-		try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
-			return parseSportSessionAlbumsData(is);
-		}
+		return parseSportSessionAlbumsData(getInputStream(file));
 	}
 
 	public SportSessionAlbums parseSportSessionAlbumsData(InputStream is) throws FileNotFoundException, IOException {
@@ -156,9 +149,7 @@ public class SportSessionParser {
 
 
 	public ImagesMetaData parseImagesMetaData(File file) throws FileNotFoundException, IOException {
-		try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
-			return parseImagesMetaData(is);
-		}
+		return parseImagesMetaData(getInputStream(file));
 	}
 
 	public ImagesMetaData parseImagesMetaData(InputStream is) throws FileNotFoundException, IOException {
@@ -167,9 +158,7 @@ public class SportSessionParser {
 
 
 	public Shoe parseShoe(File file) throws FileNotFoundException, IOException {
-		try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
-			return parseShoe(is);
-		}
+		return parseShoe(getInputStream(file));
 	}
 
 	public Shoe parseShoe(InputStream is) throws FileNotFoundException, IOException {
@@ -178,12 +167,45 @@ public class SportSessionParser {
 
 
 	public User parseUser(File file) throws FileNotFoundException, IOException {
-		try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
-			return parseUser(is);
-		}
+		return parseUser(getInputStream(file));
 	}
 
 	public User parseUser(InputStream is) throws FileNotFoundException, IOException {
 		return mapper.readValue(is, new TypeReference<User>() {});
+	}
+
+	private InputStream getInputStream( File userfile ) throws FileNotFoundException, IOException {
+		try {
+			return new BufferedInputStream(new FileInputStream(userfile));
+		} catch (FileNotFoundException e) {
+			// From 2021 the filename in the export changed to e.g. 2011-08-06_04-11-04-UTC_user.json
+			File[] files = new File(userfile.getParent()).listFiles(file -> file.getName().endsWith(userfile.getName()));
+			if( files[0] != null )
+			{
+					return new BufferedInputStream(new FileInputStream(files[0]));
+			}
+		}
+		throw new FileNotFoundException("Can't find file " + userfile.getPath());
+	}
+
+	private File getFile(File file)
+	{
+		if (file.exists()) {
+			return file;
+		} else {
+			// From 2021 the filename in the export changed to e.g. 2012-05-25_14-56-24-UTC_2337382.json
+			File[] files = new File(file.getParent()).listFiles(newfile -> newfile.getName().endsWith(file.getName()));
+			if( files != null )
+			{
+				if (files.length > 0 )
+				{
+					if( files[0] != null )
+					{
+						return files[0];
+					}
+				}
+			}
+		}
+		return file;	// return file, even if it doesn't exists
 	}
 }

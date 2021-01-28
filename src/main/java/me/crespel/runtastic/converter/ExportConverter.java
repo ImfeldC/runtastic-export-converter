@@ -161,14 +161,21 @@ public class ExportConverter {
 								&& session2.getGpx().getMetadata().getBounds() != null)) {
 							BoundsType bounds = session.getGpx().getMetadata().getBounds();
 							BoundsType bounds2 = session2.getGpx().getMetadata().getBounds();
-							BigDecimal diffMaxlat = bounds.getMaxlat().subtract(bounds2.getMaxlat()).abs();
-							BigDecimal diffMaxlon = bounds.getMaxlon().subtract(bounds2.getMaxlon()).abs();
-							BigDecimal diffMinlat = bounds.getMinlat().subtract(bounds2.getMinlat()).abs();
-							BigDecimal diffMinlon = bounds.getMinlon().subtract(bounds2.getMinlon()).abs();
-							if ((diffMaxlat.compareTo(diff) < 0) && (diffMaxlon.compareTo(diff) < 0)
-									&& (diffMinlat.compareTo(diff) < 0) && (diffMinlon.compareTo(diff) < 0)) {
-								// overlapping sport session found
-								overlapSessions.add(session2);
+							if( (bounds != null) && (bounds2 != null) )
+							{
+								if( bounds.getMaxlat() != null && bounds.getMaxlon() != null && bounds.getMinlat() != null && bounds.getMinlon() != null &&
+									bounds2.getMaxlat() != null && bounds2.getMaxlon() != null && bounds2.getMinlat() != null && bounds2.getMinlon() != null )
+								{
+									BigDecimal diffMaxlat = bounds.getMaxlat().subtract(bounds2.getMaxlat()).abs();
+									BigDecimal diffMaxlon = bounds.getMaxlon().subtract(bounds2.getMaxlon()).abs();
+									BigDecimal diffMinlat = bounds.getMinlat().subtract(bounds2.getMinlat()).abs();
+									BigDecimal diffMinlon = bounds.getMinlon().subtract(bounds2.getMinlon()).abs();
+									if ((diffMaxlat.compareTo(diff) < 0) && (diffMaxlon.compareTo(diff) < 0)
+											&& (diffMinlat.compareTo(diff) < 0) && (diffMinlon.compareTo(diff) < 0)) {
+										// overlapping sport session found
+										overlapSessions.add(session2);
+									}
+								}	
 							}
 						}
 					}
@@ -255,10 +262,10 @@ public class ExportConverter {
 
 		// (1) search per session for all "adjuncted sessions
 		for (SportSession session : sessions) {
-			if (session.getGpx() != null && session.getGpx().getMetadata() != null && session.getGpx().getMetadata().getBounds() != null) {
+			if (session.getGpx() != null && session.getGpx().getMetadata() != null && session.getGpx().getMetadata().getBounds() != null && session.getDistance() > 0) {
 				List<SportSession> compoundSessions = new ArrayList<>();
 				for (SportSession session2 : sessions) {
-					if (!session.getId().equals(session2.getId())) {
+					if (!session.getId().equals(session2.getId()) && session2.getDistance() > 0 ) {
 						if( (session.getOverlapSessions()==null) ||
 						    ((session.getOverlapSessions()!=null) && (!session.getOverlapSessions().contains(session2))) ) {
 							// process session only if it isn't an "overlapping" session

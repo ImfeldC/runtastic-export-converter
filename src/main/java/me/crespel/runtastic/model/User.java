@@ -13,6 +13,7 @@ import lombok.Data;
 
 /**
  * Runtastic model for user (\\User\\user.json).
+ * From 2021 the filename in the export changde to e.g. 2011-08-06_04-11-04-UTC_user.json
  * @author Christian IMFELD (imfeldc@gmail.com)
  */
 @Data
