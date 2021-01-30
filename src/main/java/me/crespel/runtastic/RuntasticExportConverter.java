@@ -110,7 +110,7 @@ public class RuntasticExportConverter {
 
 	private void doCheck(File path) throws FileNotFoundException, IOException {
 		System.out.println("Check curent export and provide some statistics ...");
-		List<SportSession> sessions = converter.listSportSessions(path, false);
+		List<SportSession> sessions = converter.listSportSessions(path, null, false);
 		System.out.println("      " + sessions.size() + " Sport Sessions found.");
 
 		System.out.println("Load full list of sport session (inclusive all sub-data), this requires some time ...");
@@ -155,11 +155,9 @@ public class RuntasticExportConverter {
 
 	protected void doListWithFilter(File path, String filter) throws FileNotFoundException, IOException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		List<SportSession> sessions = converter.listSportSessions(path, false);
+		List<SportSession> sessions = converter.listSportSessions(path, filter, false);
 		for (SportSession session : sessions) {
-			if (filter == null || session.contains(filter)) {
-				System.out.println(sdf.format(session.getStartTime()) + " - ID: " + session.getId() + ", Sport Type: " + session.getSportTypeId() + ", duration: " + Duration.ofMillis(session.getDuration()).toString() + " (" + session.getDuration() / 60000 + " min), Notes: '" + session.getNotes() + "'");
-			}
+			System.out.println(sdf.format(session.getStartTime()) + " - ID: " + session.getId() + ", Sport Type: " + session.getSportTypeId() + ", duration: " + Duration.ofMillis(session.getDuration()).toString() + " (" + session.getDuration() / 60000 + " min), Notes: '" + session.getNotes() + "'");
 		}
 	}
 
