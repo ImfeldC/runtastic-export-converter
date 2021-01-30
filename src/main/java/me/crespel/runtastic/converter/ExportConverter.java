@@ -45,7 +45,7 @@ public class ExportConverter {
 		File[] files = path.listFiles(file -> file.getName().endsWith(".json"));
 		for (File file : files) {
 			SportSession session = parser.parseSportSession(file,full);
-			if (filter != null && session.contains(filter)) {
+			if (filter == null || session.contains(filter)) {
 					sessions.add(session);
 			}
 		}
