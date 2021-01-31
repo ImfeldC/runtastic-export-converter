@@ -104,6 +104,32 @@ public class SportSessionParser {
 		}
 		// read and add user
 		sportSession.setUser(parseUser(getFile(new File(new File(file.getParentFile().getParentFile(), USER_DIR), "user.json"))));
+
+		if( (sportSession.getNotes() != null) && !sportSession.getNotes().equals("")) {
+			List<String> tags = new ArrayList<>();
+			// if a "note" is available, parse for tags leading with #
+			String[] tokens = sportSession.getNotes().split(" ");
+			for (String token : tokens) {
+				token = token.replace("(", "");
+				token = token.replace(")", "");
+				if( token.startsWith("#") ) {
+					// tag found ...
+					tags.add(token);
+					// check if this is a "sort" tag, which can be converted into an Integer
+					int foo;
+					try {
+						foo = Integer.parseInt(token.substring(1));
+						sportSession.setSortTag(foo);
+					}
+					catch (NumberFormatException e)
+					{
+						// ignore execption, seems not to be a "sort" tag
+					}
+				}
+			}
+			sportSession.setTags(tags);
+		}
+
 		return sportSession;
 	}
 

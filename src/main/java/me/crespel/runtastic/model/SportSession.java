@@ -88,6 +88,11 @@ public class SportSession implements Comparable<SportSession> {
 	@JsonIgnore
 	private User user;
 
+	@JsonIgnore
+	private List<String> tags;
+	@JsonIgnore
+	private Integer sortTag;
+
 	public Boolean contains( String filter ) {
 		Boolean ret = false;
 		if( filter != null) {
@@ -117,6 +122,14 @@ public class SportSession implements Comparable<SportSession> {
 						break;
 					}
 				}
+			} else if( getTags()!=null ){
+				for( String tag : getTags() ) {
+					if( tag.equals(filter)) {
+						// tag found
+						ret = true;
+						break;
+					}
+				}
 			}
 		} else {
 			// no filter set; retun "true"
@@ -129,6 +142,13 @@ public class SportSession implements Comparable<SportSession> {
 	public int compareTo(SportSession o) {
 		if (o == null) {
 			return 1;
+		} else if (this.getSortTag()!=null && o.getSortTag()!=null) {
+			// both instances have a "sort" tag, compare them
+			int ret = this.getSortTag().compareTo(o.getSortTag());
+			if (ret == 0) {
+				ret = this.startTime.compareTo(o.startTime);
+			}
+			return ret;
 		} else if (this.startTime == null) {
 			return -1;
 		} else {

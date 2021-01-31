@@ -159,6 +159,7 @@ public class RuntasticExportConverter {
 		for (SportSession session : sessions) {
 			System.out.println(sdf.format(session.getStartTime()) + " - ID: " + session.getId() + ", Sport Type: " + session.getSportTypeId() + ", duration: " + Duration.ofMillis(session.getDuration()).toString() + " (" + session.getDuration() / 60000 + " min), Notes: '" + session.getNotes() + "'");
 		}
+		System.out.println("Total " + sessions.size() + " sessions found.");
 	}
 
 	protected void doUser(File path) throws FileNotFoundException, IOException {
@@ -185,6 +186,7 @@ public class RuntasticExportConverter {
 			System.out.println("      Elevation: (+) " + session.getElevationGain() + " m , (-) " + session.getElevationLoss() + " m  /  " + ( session.getLatitude() != null ? "Latitude: " + session.getLatitude() + ", Longitude: " + session.getLongitude() + "  ( http://maps.google.com/maps?q=" + session.getLatitude() + "," + session.getLongitude() + " )" : "No GPS information available.") );
 			System.out.println("      Notes: " + session.getNotes());
 			System.out.println("      Waypoints: " + ((session.getGpsData() == null) ? "0" : session.getGpsData().size()) + " JSON points, " + ((session.getGpx() == null) ? "0" : session.getGpx().getTrk().get(0).getTrkseg().get(0).getTrkpt().size()) + " GPX points.");
+			System.out.println("      Tags: " + ((session.getTags() == null) ? "none" : session.getTags().toString()) + " / SortTag=" + session.getSortTag());
 			System.out.println("      Photos:" + (session.getSessionAlbum() != null ? session.getSessionAlbum().getPhotosIds().toString() : "none"));
 			if (session.getImages() != null) {
 				for (ImagesMetaData image : session.getImages()) {
