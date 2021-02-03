@@ -45,7 +45,7 @@ public class ExportConverter {
 		File[] files = path.listFiles(file -> file.getName().endsWith(".json"));
 		for (File file : files) {
 			SportSession session = parser.parseSportSession(file,full);
-			if (filter == null || session.contains(filter)) {
+			if (filter == null || "all".equalsIgnoreCase(filter) || session.contains(filter)) {
 					sessions.add(session);
 			}
 		}
@@ -120,29 +120,29 @@ public class ExportConverter {
 		mapper.mapSportSession(session, format, dest);
 	}
 
-	public void exportSportSession(File path, String id, File dest, String format) throws FileNotFoundException, IOException {
-		SportSession session = parser.parseSportSession(new File(normalizeExportPath(path, SPORT_SESSIONS_DIR), id + ".json"), true);
-		exportSportSession(session, dest, format);
-	}
-
-	public int exportSportSessions(File path, File dest, String format) throws FileNotFoundException, IOException {
+	public int exportSportSessions(File path, String filter, File dest, String format) throws FileNotFoundException, IOException {
 		if (dest.exists() && !dest.isDirectory()) {
 			throw new IllegalArgumentException("Destination '" + dest + "' is not a valid directory");
 		}
 		dest.mkdirs();
 		File[] files = normalizeExportPath(path, SPORT_SESSIONS_DIR).listFiles(file -> file.getName().endsWith(".json"));
+		List<SportSession> sessions = new ArrayList<>();
 		Arrays.asList(files).parallelStream().forEach(file -> {
+			System.out.print(".");
 			try {
 				SportSession session = parser.parseSportSession(file, true);
-				if (session.getGpsData() != null || session.getHeartRateData() != null || session.getGpx() != null) {
-					File destFile = new File(dest, buildFileName(session, format));
-					mapper.mapSportSession(session, format, destFile);
+				if (filter == null || "all".equalsIgnoreCase(filter) || session.contains(filter)) {
+					sessions.add(session);
+					if (session.getGpsData() != null || session.getHeartRateData() != null || session.getGpx() != null) {
+						File destFile = new File(dest, buildFileName(session, format));
+						mapper.mapSportSession(session, format, destFile);
+					}
 				}
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		});
-		return files.length;
+		return sessions.size();
 	}
 
 

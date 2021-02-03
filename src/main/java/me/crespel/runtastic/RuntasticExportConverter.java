@@ -10,7 +10,6 @@ import java.util.List;
 import com.topografix.gpx._1._1.BoundsType;
 
 import me.crespel.runtastic.converter.ExportConverter;
-import me.crespel.runtastic.mapper.SportSessionMapper;
 import me.crespel.runtastic.model.ImagesMetaData;
 import me.crespel.runtastic.model.SportSession;
 import me.crespel.runtastic.model.User;
@@ -98,14 +97,15 @@ public class RuntasticExportConverter {
 	protected void printUsage() {
 		System.out.println("Expected arguments:");
 		System.out.println("  check    <export path>");
-		System.out.println("  list     <export path> <filter>");
 		System.out.println("  user     <export path>");
 		System.out.println("  info     <export path> <activity id>");
 		System.out.println("  photo    <export path> <photo id>");
-		System.out.println("  convert  <export path> <activity id | 'all'> <destination path> ['gpx' | 'tcx']");
-		System.out.println("  overlap  <export path> <activity id | 'all'> <destination path> ['gpx' | 'tcx']");
-		System.out.println("  compound <export path> <activity id | 'all'> <destination path> ['gpx' | 'tcx']");
+		System.out.println("  list     <export path> <filter>");
+		System.out.println("  convert  <export path> <filter> <destination path> ['gpx' | 'tcx']");
+		System.out.println("  overlap  <export path> <filter> <destination path> ['gpx' | 'tcx']");
+		System.out.println("  compound <export path> <filter> <destination path> ['gpx' | 'tcx']");
 		System.out.println("  help");
+		System.out.println("  NOTE: <filter> can be either <activity id | 'all' | 'tag' | 'any string'>");
 	}
 
 	private void doCheck(File path) throws FileNotFoundException, IOException {
@@ -218,19 +218,15 @@ public class RuntasticExportConverter {
 		}
 	}
 
-	protected void doConvert(File path, String id, File dest, String format) throws FileNotFoundException, IOException {
-		if ("all".equalsIgnoreCase(id)) {
-			long startTime = System.currentTimeMillis();
-			int count = converter.exportSportSessions(path, dest, format);
-			long endTime = System.currentTimeMillis();
-			System.out.println(count + " activities successfully written to '" + dest + "' in " + (endTime - startTime) / 1000 + " seconds");
-		} else {
-			converter.exportSportSession(path, id, dest, format);
-			System.out.println("Activity successfully written to '" + dest + "'");
-		}
+	protected void doConvert(File path, String filter, File dest, String format) throws FileNotFoundException, IOException {
+		long startTime = System.currentTimeMillis();
+		int count = converter.exportSportSessions(path, filter, dest, format);
+		long endTime = System.currentTimeMillis();
+		System.out.println(".");
+		System.out.println(count + " activities matching filter '" + filter + "' successfully converted and written to '" + dest + "' in " + (endTime - startTime) / 1000 + " seconds");
 	}
 
-	private void doOverlap(File path, String id, File dest, String format) throws FileNotFoundException, IOException {
+	private void doOverlap(File path, String filter, File dest, String format) throws FileNotFoundException, IOException {
 		long startTime = System.currentTimeMillis();
 		System.out.println("Load full list of sport session (inclusive all sub-data), this requires some time ...");
 		List<SportSession> sessions = converter.convertSportSessions(path, format);
@@ -238,11 +234,11 @@ public class RuntasticExportConverter {
 		displaySummary(sessions, false);
 
 		if(dest!=null) {
-			System.out.println("Export '" + id + "' overlap sport session(s) ...");
+			System.out.println("Export '" + filter + "' overlap sport session(s) ...");
 			for( SportSession session : sessions) {
 				List<SportSession> overlapSessions = session.getOverlapSessions();
 				if((overlapSessions!=null) && (overlapSessions.size() > 0)) {
-					if ("all".equalsIgnoreCase(id) || (id.equalsIgnoreCase(session.getId()))) {
+					if ("all".equalsIgnoreCase(filter) || (filter.equalsIgnoreCase(session.getId()))) {
 						converter.exportSportSession(session, dest, format);
 					}
 				}
@@ -253,7 +249,7 @@ public class RuntasticExportConverter {
 		System.out.println(sessions.size() + " activities successfully processed, in " + (endTime - startTime) / 1000 + " seconds");
 	}
 
-	private void doCompound(File path, String id, File dest, String format) throws FileNotFoundException, IOException {
+	private void doCompound(File path, String filter, File dest, String format) throws FileNotFoundException, IOException {
 		long startTime = System.currentTimeMillis();
 		System.out.println("Load full list of sport session (inclusive all sub-data), this requires some time ...");
 		List<SportSession> sessions = converter.convertSportSessions(path, format);
@@ -261,11 +257,11 @@ public class RuntasticExportConverter {
 		displaySummary(sessions, false);
 
 		if(dest!=null){
-			System.out.println("Export '" + id + "' compound sport session(S) ...");
+			System.out.println("Export '" + filter + "' compound sport session(S) ...");
 			for( SportSession session : sessions) {
 				List<SportSession> compoundSessions = session.getCompoundSessions();
 				if((compoundSessions!=null) && (compoundSessions.size() > 0)) {
-					if ("all".equalsIgnoreCase(id) || (id.equalsIgnoreCase(session.getId()))) {
+					if ("all".equalsIgnoreCase(filter) || (filter.equalsIgnoreCase(session.getId()))) {
 						converter.exportSportSession(session, dest, format);
 					}
 				}

@@ -206,7 +206,7 @@ public class SportSessionParser {
 		} catch (FileNotFoundException e) {
 			// From 2021 the filename in the export changed to e.g. 2011-08-06_04-11-04-UTC_user.json
 			File[] files = new File(userfile.getParent()).listFiles(file -> file.getName().endsWith(userfile.getName()));
-			if( files[0] != null )
+			if( files != null && files.length>0 && files[0] != null )
 			{
 					return new BufferedInputStream(new FileInputStream(files[0]));
 			}
