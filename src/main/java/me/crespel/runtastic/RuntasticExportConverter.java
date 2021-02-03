@@ -114,7 +114,7 @@ public class RuntasticExportConverter {
 		System.out.println("      " + sessions.size() + " Sport Sessions found.");
 
 		System.out.println("Load full list of sport session (inclusive all sub-data), this requires some time ...");
-		List<SportSession> fullsessions = converter.convertSportSessions(path, "gpx");
+		List<SportSession> fullsessions = converter.loadSportSessions(path, "gpx");
 
 		// Calculate statistics ..
 		Integer gpxSessionCount = 0;
@@ -220,7 +220,7 @@ public class RuntasticExportConverter {
 
 	protected void doConvert(File path, String filter, File dest, String format) throws FileNotFoundException, IOException {
 		long startTime = System.currentTimeMillis();
-		int count = converter.exportSportSessions(path, filter, dest, format);
+		int count = converter.convertSportSessions(path, filter, dest, format);
 		long endTime = System.currentTimeMillis();
 		System.out.println(".");
 		System.out.println(count + " activities matching filter '" + filter + "' successfully converted and written to '" + dest + "' in " + (endTime - startTime) / 1000 + " seconds");
@@ -229,47 +229,49 @@ public class RuntasticExportConverter {
 	private void doOverlap(File path, String filter, File dest, String format) throws FileNotFoundException, IOException {
 		long startTime = System.currentTimeMillis();
 		System.out.println("Load full list of sport session (inclusive all sub-data), this requires some time ...");
-		List<SportSession> sessions = converter.convertSportSessions(path, format);
+		List<SportSession> sessions = converter.loadSportSessions(path, format);
 		converter.doOverlap(sessions);
 		displaySummary(sessions, false);
 
 		if(dest!=null) {
-			System.out.println("Export '" + filter + "' overlap sport session(s) ...");
+			System.out.println("Convert '" + filter + "' overlap sport session(s) ...");
 			for( SportSession session : sessions) {
 				List<SportSession> overlapSessions = session.getOverlapSessions();
 				if((overlapSessions!=null) && (overlapSessions.size() > 0)) {
 					if ("all".equalsIgnoreCase(filter) || (filter.equalsIgnoreCase(session.getId()))) {
-						converter.exportSportSession(session, dest, format);
+						converter.convertSportSession(session, dest, format);
 					}
 				}
 			}
 		}
 
 		long endTime = System.currentTimeMillis();
-		System.out.println(sessions.size() + " activities successfully processed, in " + (endTime - startTime) / 1000 + " seconds");
+		System.out.println(".");
+		System.out.println(sessions.size() + " activities matching filter '" + filter + "' successfully processed, in " + (endTime - startTime) / 1000 + " seconds");
 	}
 
 	private void doCompound(File path, String filter, File dest, String format) throws FileNotFoundException, IOException {
 		long startTime = System.currentTimeMillis();
 		System.out.println("Load full list of sport session (inclusive all sub-data), this requires some time ...");
-		List<SportSession> sessions = converter.convertSportSessions(path, format);
+		List<SportSession> sessions = converter.loadSportSessions(path, format);
 		converter.doCompound(sessions);
 		displaySummary(sessions, false);
 
 		if(dest!=null){
-			System.out.println("Export '" + filter + "' compound sport session(S) ...");
+			System.out.println("Convert '" + filter + "' compound sport session(S) ...");
 			for( SportSession session : sessions) {
 				List<SportSession> compoundSessions = session.getCompoundSessions();
 				if((compoundSessions!=null) && (compoundSessions.size() > 0)) {
 					if ("all".equalsIgnoreCase(filter) || (filter.equalsIgnoreCase(session.getId()))) {
-						converter.exportSportSession(session, dest, format);
+						converter.convertSportSession(session, dest, format);
 					}
 				}
 			}
 		}
 
 		long endTime = System.currentTimeMillis();
-		System.out.println(sessions.size() + " activities successfully processed, in " + (endTime - startTime) / 1000 + " seconds");
+		System.out.println(".");
+		System.out.println(sessions.size() + " activities matching filter '" + filter + "' successfully processed, in " + (endTime - startTime) / 1000 + " seconds");
 	}
 
 

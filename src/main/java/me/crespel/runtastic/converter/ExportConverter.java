@@ -96,7 +96,7 @@ public class ExportConverter {
 		return getSportSession(path, sessionid);
 	}
 
-	public List<SportSession> convertSportSessions(File path, String format) throws FileNotFoundException, IOException {
+	public List<SportSession> loadSportSessions(File path, String format) throws FileNotFoundException, IOException {
 		File[] files = normalizeExportPath(path, SPORT_SESSIONS_DIR).listFiles(file -> file.getName().endsWith(".json"));
 		List<SportSession> sessionlist = new ArrayList<>();
 		Arrays.asList(files).parallelStream().forEach(file -> {
@@ -113,14 +113,14 @@ public class ExportConverter {
 		return sessionlist;
 	}
 
-	public void exportSportSession(SportSession session, File dest, String format) throws FileNotFoundException, IOException {
+	public void convertSportSession(SportSession session, File dest, String format) throws FileNotFoundException, IOException {
 		if (dest.isDirectory()) {
 			dest = new File(dest, buildFileName(session, format));
 		}
 		mapper.mapSportSession(session, format, dest);
 	}
 
-	public int exportSportSessions(File path, String filter, File dest, String format) throws FileNotFoundException, IOException {
+	public int convertSportSessions(File path, String filter, File dest, String format) throws FileNotFoundException, IOException {
 		if (dest.exists() && !dest.isDirectory()) {
 			throw new IllegalArgumentException("Destination '" + dest + "' is not a valid directory");
 		}
