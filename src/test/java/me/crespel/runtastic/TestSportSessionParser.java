@@ -1,5 +1,6 @@
 package me.crespel.runtastic;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class TestSportSessionParser {
 
 	@Test
 	public void testParseSportSession() throws JsonParseException, JsonMappingException, IOException {
-		SportSession data = parser.parseSportSession(getClass().getResourceAsStream("SportSession.json"));
+		SportSession data = parser.parseSportSession(new File("SportSession.json"));
 		System.out.println(data);
 	}
 
@@ -46,25 +47,25 @@ public class TestSportSessionParser {
 
 	@Test
 	public void testParseSportSessionAlbums() throws JsonParseException, JsonMappingException, IOException {
-		SportSessionAlbums data = parser.parseSportSessionAlbumsData(getClass().getResourceAsStream("SportSessionAlbums.json"));
+		SportSessionAlbums data = parser.parseSportSessionAlbumsData(new File("SportSessionAlbums.json"));
 		System.out.println(data);
 	}
 
 	@Test
 	public void testParseImagesMetaData() throws JsonParseException, JsonMappingException, IOException {
-		ImagesMetaData data = parser.parseImagesMetaData(getClass().getResourceAsStream("ImagesMetaData.json"));
+		ImagesMetaData data = parser.parseImagesMetaData(new File("ImagesMetaData.json"));
 		System.out.println(data);
 	}
 
 	@Test
 	public void testParseImagesMetaData2() throws JsonParseException, JsonMappingException, IOException {
-		ImagesMetaData data = parser.parseImagesMetaData(getClass().getResourceAsStream("ImagesMetaData2.json"));
+		ImagesMetaData data = parser.parseImagesMetaData(new File("ImagesMetaData2.json"));
 		System.out.println(data);
 	}
 
 	@Test
 	public void testParseShoe() throws JsonParseException, JsonMappingException, IOException {
-		Shoe data = parser.parseShoe(getClass().getResourceAsStream("Shoe.json"));
+		Shoe data = parser.parseShoe(new File("Shoe.json"));
 		System.out.println(data);
 	}
 

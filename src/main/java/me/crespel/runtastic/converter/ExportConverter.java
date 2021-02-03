@@ -4,6 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.CopyOption;
+import java.nio.file.StandardCopyOption;
+import static java.nio.file.StandardCopyOption.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +17,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.topografix.gpx._1._1.BoundsType;
+
+import org.apache.commons.io.FilenameUtils;
 
 import me.crespel.runtastic.mapper.DelegatingSportSessionMapper;
 import me.crespel.runtastic.mapper.SportSessionMapper;
@@ -136,6 +144,53 @@ public class ExportConverter {
 					if (session.getGpsData() != null || session.getHeartRateData() != null || session.getGpx() != null) {
 						File destFile = new File(dest, buildFileName(session, format));
 						mapper.mapSportSession(session, format, destFile);
+					}
+				}
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
+		return sessions.size();
+	}
+
+	// Loop through all sport session and export sessions mathing filter criteria
+	public int exportSportSessions(File path, String filter, File dest, String format) throws FileNotFoundException, IOException {
+		if (dest.exists() && !dest.isDirectory()) {
+			throw new IllegalArgumentException("Destination '" + dest + "' is not a valid directory");
+		}
+		dest.mkdirs();
+		File[] files = normalizeExportPath(path, SPORT_SESSIONS_DIR).listFiles(file -> file.getName().endsWith(".json"));
+		List<SportSession> sessions = new ArrayList<>();
+		Arrays.asList(files).forEach(file -> {
+			System.out.print(".");
+			try {
+				SportSession session = parser.parseSportSession(file, true);
+				if (filter == null || "all".equalsIgnoreCase(filter) || session.contains(filter)) {
+					// Create sub-folder to store export of this sport session
+					String fileNameWithOutExt = FilenameUtils.removeExtension(session.getFileName());
+					String folderName = FilenameUtils.getName(fileNameWithOutExt);
+					File sessionDestFolder = new File(dest,folderName);
+					sessionDestFolder.mkdirs();
+					sessions.add(session);
+
+					// Convert Sport Session
+					if (session.getGpsData() != null || session.getHeartRateData() != null || session.getGpx() != null) {
+						File destFile = new File(sessionDestFolder, buildFileName(session, format));
+						mapper.mapSportSession(session, format, destFile);
+					}
+
+					if( session.getImages() != null ) {
+						for (ImagesMetaData image : session.getImages() ) {
+							// Copy session image meta data to export of this sport session
+							Path target = Paths.get(sessionDestFolder.getAbsolutePath()+"\\"+FilenameUtils.getName(image.getFileName()));
+							Path source = Paths.get(image.getFileName());
+							Files.copy(source, target, REPLACE_EXISTING);
+
+							// Copy images to export of this sport session
+							Path targetImage = Paths.get(sessionDestFolder.getAbsolutePath()+"\\"+ image.getId() + ".jpg");
+							Path sourceImage = Paths.get(normalizeExportPath(path, PHOTOS_DIR).getAbsolutePath(), image.getId() + ".jpg");
+							Files.copy(sourceImage, targetImage, REPLACE_EXISTING);
+						}
 					}
 				}
 			} catch (IOException e) {

@@ -53,8 +53,9 @@ public class SportSessionParser {
 	}
 
 	public SportSession parseSportSession(File file, boolean full) throws FileNotFoundException, IOException {
-		InputStream is = getInputStream(file);
-		SportSession sportSession = parseSportSession(is);
+		SportSession sportSession = mapper.readValue(getInputStream(file), SportSession.class);
+		sportSession.setFileName(file.getCanonicalPath());
+
 		if (full) {
 			File elevationDataFile = getFile(new File(new File(file.getParentFile(), ELEVATION_DATA_DIR), file.getName()));
 			if (elevationDataFile.exists()) {
@@ -110,6 +111,7 @@ public class SportSessionParser {
 			// if a "note" is available, parse for tags leading with #
 			String[] tokens = sportSession.getNotes().split(" ");
 			for (String token : tokens) {
+				// remove optional brackets around the tag(s)
 				token = token.replace("(", "");
 				token = token.replace(")", "");
 				if( token.startsWith("#") ) {
@@ -131,10 +133,6 @@ public class SportSessionParser {
 		}
 
 		return sportSession;
-	}
-
-	public SportSession parseSportSession(InputStream is) throws FileNotFoundException, IOException {
-		return mapper.readValue(is, SportSession.class);
 	}
 
 
@@ -166,29 +164,23 @@ public class SportSessionParser {
 
 
 	public SportSessionAlbums parseSportSessionAlbumsData(File file) throws FileNotFoundException, IOException {
-		return parseSportSessionAlbumsData(getInputStream(file));
-	}
-
-	public SportSessionAlbums parseSportSessionAlbumsData(InputStream is) throws FileNotFoundException, IOException {
-		return mapper.readValue(is, new TypeReference<SportSessionAlbums>() {});
+		SportSessionAlbums album = mapper.readValue(getInputStream(file), new TypeReference<SportSessionAlbums>() {});
+		album.setFileName(file.getCanonicalPath());
+		return album;
 	}
 
 
 	public ImagesMetaData parseImagesMetaData(File file) throws FileNotFoundException, IOException {
-		return parseImagesMetaData(getInputStream(file));
-	}
-
-	public ImagesMetaData parseImagesMetaData(InputStream is) throws FileNotFoundException, IOException {
-		return mapper.readValue(is, new TypeReference<ImagesMetaData>() {});
+		ImagesMetaData image = mapper.readValue(getInputStream(file), new TypeReference<ImagesMetaData>() {});
+		image.setFileName(file.getCanonicalPath());
+		return image;
 	}
 
 
 	public Shoe parseShoe(File file) throws FileNotFoundException, IOException {
-		return parseShoe(getInputStream(file));
-	}
-
-	public Shoe parseShoe(InputStream is) throws FileNotFoundException, IOException {
-		return mapper.readValue(is, new TypeReference<Shoe>() {});
+		Shoe shoe = mapper.readValue(getInputStream(file), new TypeReference<Shoe>() {});
+		shoe.setFileName(file.getCanonicalPath());
+		return shoe;
 	}
 
 

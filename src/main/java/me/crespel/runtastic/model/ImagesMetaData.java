@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -19,6 +20,9 @@ import lombok.Data;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ImagesMetaData implements Comparable<ImagesMetaData> {
+
+	@JsonIgnore
+	private String fileName;
 
 	@JsonFormat(shape = Shape.NUMBER)
     private Date createdAt;

@@ -1,5 +1,7 @@
 package me.crespel.runtastic;
 
+import java.io.File;
+
 import org.junit.Test;
 
 import me.crespel.runtastic.mapper.DelegatingSportSessionMapper;
@@ -18,7 +20,7 @@ public class TestSportSessionMapper {
 
 	@Test
 	public void testMapSportSessionToTCX() throws Exception {
-		SportSession sportSession = parser.parseSportSession(getClass().getResourceAsStream("SportSession.json"));
+		SportSession sportSession = parser.parseSportSession(new File("SportSession.json"));
 		sportSession.setGpsData(parser.parseGpsData(getClass().getResourceAsStream("GpsData.json")));
 		sportSession.setHeartRateData(parser.parseHeartRateData(getClass().getResourceAsStream("HeartRateData.json")));
 		mapper.mapSportSession(sportSession, "tcx", System.out);
@@ -26,7 +28,7 @@ public class TestSportSessionMapper {
 
 	@Test
 	public void testMapSportSessionToGPX() throws Exception {
-		SportSession sportSession = parser.parseSportSession(getClass().getResourceAsStream("SportSession.json"));
+		SportSession sportSession = parser.parseSportSession(new File("SportSession.json"));
 		sportSession.setGpsData(parser.parseGpsData(getClass().getResourceAsStream("GpsData.json")));
 		sportSession.setHeartRateData(parser.parseHeartRateData(getClass().getResourceAsStream("HeartRateData.json")));
 		mapper.mapSportSession(sportSession, "gpx", System.out);

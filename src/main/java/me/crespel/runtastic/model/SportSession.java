@@ -20,6 +20,9 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SportSession implements Comparable<SportSession> {
 
+	@JsonIgnore
+	private String fileName;
+
 	private Date startTime;
 	private Date endTime;
 	private Date createdAt;
