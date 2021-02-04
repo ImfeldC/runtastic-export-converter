@@ -1,11 +1,8 @@
 package me.crespel.runtastic.parser;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,8 +20,12 @@ import javax.xml.bind.Unmarshaller;
 import com.topografix.gpx._1._1.GpxType;
 
 import me.crespel.runtastic.model.ElevationData;
+import me.crespel.runtastic.model.ElevationSession;
 import me.crespel.runtastic.model.GpsData;
+import me.crespel.runtastic.model.GpsSession;
+import me.crespel.runtastic.model.GpxSession;
 import me.crespel.runtastic.model.HeartRateData;
+import me.crespel.runtastic.model.HeartRateSession;
 import me.crespel.runtastic.model.ImagesMetaData;
 import me.crespel.runtastic.model.Shoe;
 import me.crespel.runtastic.model.SportSession;
@@ -53,36 +54,40 @@ public class SportSessionParser {
 	}
 
 	public SportSession parseSportSession(File file, boolean full) throws FileNotFoundException, IOException {
-		SportSession sportSession = mapper.readValue(getInputStream(file), SportSession.class);
+		SportSession sportSession = mapper.readValue(getFile(file), SportSession.class);
 		sportSession.setFileName(file.getCanonicalPath());
 
 		if (full) {
 			File elevationDataFile = getFile(new File(new File(file.getParentFile(), ELEVATION_DATA_DIR), file.getName()));
 			if (elevationDataFile.exists()) {
-				sportSession.setElevationData(parseElevationData(elevationDataFile));
+				sportSession.setElevationSession(parseElevationSession(elevationDataFile));
 			}
 			// read GPS data from JSON file
 			File gpsDataFileJSON = getFile(new File(new File(file.getParentFile(), GPS_DATA_DIR), file.getName()));
 			if (gpsDataFileJSON.exists()) {
-				sportSession.setGpsData(parseGpsData(gpsDataFileJSON));
+				sportSession.setGpsSession(parseGpsSession(gpsDataFileJSON));
 			}
 			// read GPS data from GPX file (the runtastic export contains GPS data as GPX files, starting from April-2020)
 			File gpsDataFileGPX = getFile(new File(new File(file.getParentFile(), GPS_DATA_DIR), FilenameUtils.getBaseName(file.getName()) + ".gpx"));
 			if (gpsDataFileGPX.exists()) {
+				if( sportSession.getGpxSession() == null ) {
+					sportSession.setGpxSession(new GpxSession());
+				}
 				// Load GPX file
 				try {
 					JAXBContext ctx = JAXBContext.newInstance(GpxType.class);
 					Unmarshaller um = ctx.createUnmarshaller();
 					JAXBElement<GpxType> root = (JAXBElement<GpxType>)um.unmarshal(gpsDataFileGPX);
 					GpxType gpx = root.getValue();
-					sportSession.setGpx(gpx);
+					sportSession.getGpxSession().setGpx(gpx);
 				} catch (JAXBException e) {
 					throw new RuntimeException(e);
 				}
+				sportSession.getGpxSession().setFileName(gpsDataFileGPX.getCanonicalPath());
 			}
 			File heartRateDataFile = getFile(new File(new File(file.getParentFile(), HEARTRATE_DATA_DIR), file.getName()));
 			if (heartRateDataFile.exists()) {
-				sportSession.setHeartRateData(parseHeartRateData(heartRateDataFile));
+				sportSession.setHeartRateSession(parseHeartRateSession(heartRateDataFile));
 			}
 		}
 
@@ -136,74 +141,50 @@ public class SportSessionParser {
 	}
 
 
-	public List<ElevationData> parseElevationData(File file) throws FileNotFoundException, IOException {
-		return parseElevationData(getInputStream(file));
+	public ElevationSession parseElevationSession(File file) throws FileNotFoundException, IOException {
+		ElevationSession elevationsession = new ElevationSession();
+		elevationsession.setFileName(file.getCanonicalPath());
+		elevationsession.setElevationData(mapper.readValue(getFile(file), new TypeReference<List<ElevationData>>() {}));
+		return elevationsession;
 	}
 
-	public List<ElevationData> parseElevationData(InputStream is) throws FileNotFoundException, IOException {
-		return mapper.readValue(is, new TypeReference<List<ElevationData>>() {});
+	public GpsSession parseGpsSession(File file) throws FileNotFoundException, IOException {
+		GpsSession gpssession = new GpsSession();
+		gpssession.setFileName(file.getCanonicalPath());
+		gpssession.setGpsData(mapper.readValue(getFile(file), new TypeReference<List<GpsData>>() {}));
+		return gpssession;
 	}
 
-
-	public List<GpsData> parseGpsData(File file) throws FileNotFoundException, IOException {
-		return parseGpsData(getInputStream(file));
+	public HeartRateSession parseHeartRateSession(File file) throws FileNotFoundException, IOException {
+		HeartRateSession heartratesession = new HeartRateSession();
+		heartratesession.setFileName(file.getCanonicalPath());
+		heartratesession.setHeartRateData(mapper.readValue(getFile(file), new TypeReference<List<HeartRateData>>() {}));
+		return heartratesession;
 	}
-
-	public List<GpsData> parseGpsData(InputStream is) throws FileNotFoundException, IOException {
-		return mapper.readValue(is, new TypeReference<List<GpsData>>() {});
-	}
-
-
-	public List<HeartRateData> parseHeartRateData(File file) throws FileNotFoundException, IOException {
-		return parseHeartRateData(getInputStream(file));
-	}
-
-	public List<HeartRateData> parseHeartRateData(InputStream is) throws FileNotFoundException, IOException {
-		return mapper.readValue(is, new TypeReference<List<HeartRateData>>() {});
-	}
-
 
 	public SportSessionAlbums parseSportSessionAlbumsData(File file) throws FileNotFoundException, IOException {
-		SportSessionAlbums album = mapper.readValue(getInputStream(file), new TypeReference<SportSessionAlbums>() {});
+		SportSessionAlbums album = mapper.readValue(getFile(file), new TypeReference<SportSessionAlbums>() {});
 		album.setFileName(file.getCanonicalPath());
 		return album;
 	}
 
 
 	public ImagesMetaData parseImagesMetaData(File file) throws FileNotFoundException, IOException {
-		ImagesMetaData image = mapper.readValue(getInputStream(file), new TypeReference<ImagesMetaData>() {});
+		ImagesMetaData image = mapper.readValue(getFile(file), new TypeReference<ImagesMetaData>() {});
 		image.setFileName(file.getCanonicalPath());
 		return image;
 	}
 
-
 	public Shoe parseShoe(File file) throws FileNotFoundException, IOException {
-		Shoe shoe = mapper.readValue(getInputStream(file), new TypeReference<Shoe>() {});
+		Shoe shoe = mapper.readValue(getFile(file), new TypeReference<Shoe>() {});
 		shoe.setFileName(file.getCanonicalPath());
 		return shoe;
 	}
 
-
 	public User parseUser(File file) throws FileNotFoundException, IOException {
-		return parseUser(getInputStream(file));
-	}
-
-	public User parseUser(InputStream is) throws FileNotFoundException, IOException {
-		return mapper.readValue(is, new TypeReference<User>() {});
-	}
-
-	private InputStream getInputStream( File userfile ) throws FileNotFoundException, IOException {
-		try {
-			return new BufferedInputStream(new FileInputStream(userfile));
-		} catch (FileNotFoundException e) {
-			// From 2021 the filename in the export changed to e.g. 2011-08-06_04-11-04-UTC_user.json
-			File[] files = new File(userfile.getParent()).listFiles(file -> file.getName().endsWith(userfile.getName()));
-			if( files != null && files.length>0 && files[0] != null )
-			{
-					return new BufferedInputStream(new FileInputStream(files[0]));
-			}
-		}
-		throw new FileNotFoundException("Can't find file " + userfile.getPath());
+		User user = mapper.readValue(getFile(file), new TypeReference<User>() {});
+		user.setFileName(file.getCanonicalPath());
+		return user;
 	}
 
 	private File getFile(File file)

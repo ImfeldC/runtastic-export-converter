@@ -56,8 +56,8 @@ public class TcxSportSessionMapper implements SportSessionMapper<TrainingCenterD
 	@Override
 	public TrainingCenterDatabaseT mapSportSession(SportSession session, String format) {
 		List<TrackpointT> trackpoints = new ArrayList<>();
-		trackpoints.addAll(mapGpsData(session.getGpsData()));
-		trackpoints.addAll(mapHeartRateData(session.getHeartRateData()));
+		trackpoints.addAll(mapGpsData(session.getGpsSession().getGpsData()));
+		trackpoints.addAll(mapHeartRateData(session.getHeartRateSession().getHeartRateData()));
 		TrackT track = factory.createTrackT();
 		track.getTrackpoint().addAll(mergeTrackpoints(trackpoints));
 

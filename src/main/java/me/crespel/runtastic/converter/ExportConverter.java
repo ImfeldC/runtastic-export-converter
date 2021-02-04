@@ -7,8 +7,6 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.CopyOption;
-import java.nio.file.StandardCopyOption;
 import static java.nio.file.StandardCopyOption.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -110,7 +108,7 @@ public class ExportConverter {
 		Arrays.asList(files).parallelStream().forEach(file -> {
 			try {
 				SportSession session = parser.parseSportSession(file, true);
-				if (session.getGpsData() != null || session.getHeartRateData() != null || session.getGpx() != null) {
+				if (session.getGpsSession() != null || session.getHeartRateSession() != null || session.getGpxSession() != null) {
 					mapper.mapSportSession(session, format);
 				}
 				sessionlist.add(session);
@@ -141,7 +139,7 @@ public class ExportConverter {
 				SportSession session = parser.parseSportSession(file, true);
 				if (filter == null || "all".equalsIgnoreCase(filter) || session.contains(filter)) {
 					sessions.add(session);
-					if (session.getGpsData() != null || session.getHeartRateData() != null || session.getGpx() != null) {
+					if (session.getGpsSession() != null || session.getHeartRateSession() != null || session.getGpxSession() != null) {
 						File destFile = new File(dest, buildFileName(session, format));
 						mapper.mapSportSession(session, format, destFile);
 					}
@@ -153,7 +151,7 @@ public class ExportConverter {
 		return sessions.size();
 	}
 
-	// Loop through all sport session and export sessions mathing filter criteria
+	// Loop through all sport session and export sessions matching filter criteria
 	public int exportSportSessions(File path, String filter, File dest, String format) throws FileNotFoundException, IOException {
 		if (dest.exists() && !dest.isDirectory()) {
 			throw new IllegalArgumentException("Destination '" + dest + "' is not a valid directory");
@@ -174,7 +172,7 @@ public class ExportConverter {
 					sessions.add(session);
 
 					// Convert Sport Session
-					if (session.getGpsData() != null || session.getHeartRateData() != null || session.getGpx() != null) {
+					if (session.getGpsSession() != null || session.getHeartRateSession() != null || session.getGpxSession() != null) {
 						File destFile = new File(sessionDestFolder, buildFileName(session, format));
 						mapper.mapSportSession(session, format, destFile);
 					}
@@ -192,6 +190,35 @@ public class ExportConverter {
 							Files.copy(sourceImage, targetImage, REPLACE_EXISTING);
 						}
 					}
+
+					if( session.getElevationSession() != null ) {
+						// copy elevation session file 
+						Path target = Paths.get(sessionDestFolder.getAbsolutePath()+"\\"+FilenameUtils.getName(session.getElevationSession().getFileName()));
+						Path source = Paths.get(session.getElevationSession().getFileName());
+						Files.copy(source, target, REPLACE_EXISTING);
+					}
+
+					if( session.getGpsSession() != null ) {
+						// copy gps session data file
+						Path target = Paths.get(sessionDestFolder.getAbsolutePath()+"\\"+FilenameUtils.getName(session.getGpsSession().getFileName()));
+						Path source = Paths.get(session.getGpsSession().getFileName());
+						Files.copy(source, target, REPLACE_EXISTING);
+					}
+
+					if( session.getGpxSession() != null && session.getGpxSession().getFileName() != null ) {
+						// copy gpx session data file
+						Path target = Paths.get(sessionDestFolder.getAbsolutePath()+"\\"+FilenameUtils.getName(session.getGpxSession().getFileName()));
+						Path source = Paths.get(session.getGpxSession().getFileName());
+						Files.copy(source, target, REPLACE_EXISTING);
+					}
+
+					if( session.getHeartRateSession() != null ) {
+						// copy heart rate session data file
+						Path target = Paths.get(sessionDestFolder.getAbsolutePath()+"\\"+FilenameUtils.getName(session.getHeartRateSession().getFileName()));
+						Path source = Paths.get(session.getHeartRateSession().getFileName());
+						Files.copy(source, target, REPLACE_EXISTING);
+					}
+
 				}
 			} catch (IOException e) {
 				throw new RuntimeException(e);
@@ -210,15 +237,15 @@ public class ExportConverter {
 		// but expected is that all mention sessions above are calculated as "overlapping"
 		// This circumstance will be "normalized" in a second step.
 		for (SportSession session : sessions) {
-			if (session.getGpx() != null && session.getGpx().getMetadata() != null
-					&& session.getGpx().getMetadata().getBounds() != null) {
+			if (session.getGpxSession() != null && session.getGpxSession().getGpx().getMetadata() != null
+					&& session.getGpxSession().getGpx().getMetadata().getBounds() != null) {
 				List<SportSession> overlapSessions = new ArrayList<>();
 				for (SportSession session2 : sessions) {
 					if (!session.getId().equals(session2.getId())) {
-						if ((session2.getGpx() != null && session2.getGpx().getMetadata() != null
-								&& session2.getGpx().getMetadata().getBounds() != null)) {
-							BoundsType bounds = session.getGpx().getMetadata().getBounds();
-							BoundsType bounds2 = session2.getGpx().getMetadata().getBounds();
+						if ((session2.getGpxSession() != null && session2.getGpxSession().getGpx().getMetadata() != null
+								&& session2.getGpxSession().getGpx().getMetadata().getBounds() != null)) {
+							BoundsType bounds = session.getGpxSession().getGpx().getMetadata().getBounds();
+							BoundsType bounds2 = session2.getGpxSession().getGpx().getMetadata().getBounds();
 							if( (bounds != null) && (bounds2 != null) )
 							{
 								if( bounds.getMaxlat() != null && bounds.getMaxlon() != null && bounds.getMinlat() != null && bounds.getMinlon() != null &&
@@ -275,7 +302,7 @@ public class ExportConverter {
 			BoundsType innerBounds = null;
 			BoundsType outerBounds = null;
 			for (SportSession overlapSession : session.getOverlapSessions()) {
-				BoundsType sessionBounds = overlapSession.getGpx().getMetadata().getBounds();;
+				BoundsType sessionBounds = overlapSession.getGpxSession().getGpx().getMetadata().getBounds();;
 				if( (innerBounds == null) && (outerBounds == null) ) {
 					// init bounds with "any" existing bounds from sessions
 					innerBounds = new BoundsType();
@@ -320,7 +347,7 @@ public class ExportConverter {
 
 		// (1) search per session for all "adjuncted sessions
 		for (SportSession session : sessions) {
-			if (session.getGpx() != null && session.getGpx().getMetadata() != null && session.getGpx().getMetadata().getBounds() != null && session.getDistance() > 0) {
+			if (session.getGpxSession() != null && session.getGpxSession().getGpx().getMetadata() != null && session.getGpxSession().getGpx().getMetadata().getBounds() != null && session.getDistance() > 0) {
 				List<SportSession> compoundSessions = new ArrayList<>();
 				for (SportSession session2 : sessions) {
 					if (!session.getId().equals(session2.getId()) && session2.getDistance() > 0 ) {
@@ -353,9 +380,9 @@ public class ExportConverter {
 	}
 
 	public boolean isCompound(SportSession session, SportSession session2) {
-		if ((session2.getGpx() != null && session2.getGpx().getMetadata() != null && session2.getGpx().getMetadata().getBounds() != null)) {
-			BoundsType bounds = session.getGpx().getMetadata().getBounds();
-			BoundsType bounds2 = session2.getGpx().getMetadata().getBounds();
+		if ((session2.getGpxSession() != null && session2.getGpxSession().getGpx().getMetadata() != null && session2.getGpxSession().getGpx().getMetadata().getBounds() != null)) {
+			BoundsType bounds = session.getGpxSession().getGpx().getMetadata().getBounds();
+			BoundsType bounds2 = session2.getGpxSession().getGpx().getMetadata().getBounds();
 			BigDecimal diffTop = bounds.getMaxlat().subtract(bounds2.getMinlat()).abs();
 			BigDecimal diffRight = bounds.getMaxlon().subtract(bounds2.getMinlon()).abs();
 			BigDecimal diffDown = bounds.getMinlat().subtract(bounds2.getMaxlat()).abs();

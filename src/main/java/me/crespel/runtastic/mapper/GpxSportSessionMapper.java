@@ -27,6 +27,7 @@ import com.topografix.gpx._1._1.TrksegType;
 import com.topografix.gpx._1._1.WptType;
 
 import me.crespel.runtastic.model.GpsData;
+import me.crespel.runtastic.model.GpxSession;
 import me.crespel.runtastic.model.ImagesMetaData;
 import me.crespel.runtastic.model.SportSession;
 
@@ -76,8 +77,11 @@ public class GpxSportSessionMapper implements SportSessionMapper<GpxType> {
 		mapCompoundSessions(session, gpx);
 
 		// store gpx data in session
-		session.setGpx(gpx);
-
+		if( session.getGpxSession() == null ) {
+			session.setGpxSession(new GpxSession());
+		}
+		session.getGpxSession().setGpx(gpx);
+	
 		return gpx;
 	}
 
@@ -114,13 +118,13 @@ public class GpxSportSessionMapper implements SportSessionMapper<GpxType> {
 	}
 
 	private void mapGPSdata(SportSession session, GpxType gpx) {
-		if (session.getGpsData() != null) {
+		if (session.getGpsSession() != null) {
 			TrkType trk = factory.createTrkType();
 			trk.setName(session.getNotes());
 			trk.setType(mapSport(session.getSportTypeId()));
 			// handling JSON GPS data
 			TrksegType trkseg = factory.createTrksegType();
-			for (GpsData gps : session.getGpsData()) {
+			for (GpsData gps : session.getGpsSession().getGpsData()) {
 				WptType wpt = factory.createWptType();
 				wpt.setLat(gps.getLatitude());
 				wpt.setLon(gps.getLongitude());
@@ -134,13 +138,13 @@ public class GpxSportSessionMapper implements SportSessionMapper<GpxType> {
 	}
 
 	private void mapGPXdata(SportSession session, GpxType gpx) {
-		if (session.getGpx() != null) {
+		if (session.getGpxSession() != null) {
 			TrkType trk = factory.createTrkType();
 			trk.setName(session.getNotes() + " (" + session.getId() + ")");
 			trk.setDesc(session.getNotes() + " (" + session.getId() + ")");
 			trk.setType(mapSport(session.getSportTypeId()));
 			// handling GPX GPS data
-			trk.getTrkseg().addAll(session.getGpx().getTrk().get(0).getTrkseg());
+			trk.getTrkseg().addAll(session.getGpxSession().getGpx().getTrk().get(0).getTrkseg());
 			gpx.getTrk().add(trk);
 		}
 	}
@@ -189,7 +193,7 @@ public class GpxSportSessionMapper implements SportSessionMapper<GpxType> {
 				trk.setName("Overlap Session " + overlapSessionCount + ": " + overlapSession.getId());
 				trk.setDesc("Overlap Session " + overlapSessionCount + ": " + overlapSession.getNotes());
 				trk.setType(mapSport(overlapSession.getSportTypeId()));
-				trk.getTrkseg().addAll(overlapSession.getGpx().getTrk().get(0).getTrkseg());
+				trk.getTrkseg().addAll(overlapSession.getGpxSession().getGpx().getTrk().get(0).getTrkseg());
 				gpx.getTrk().add(trk);
 			}			
 		}
@@ -219,7 +223,7 @@ public class GpxSportSessionMapper implements SportSessionMapper<GpxType> {
 				trk.setName("Compound Session " + compoundSessionCount + ": " + compoundSession.getId());
 				trk.setDesc("Compound Session " + compoundSessionCount + ": " + compoundSession.getNotes());
 				trk.setType(mapSport(compoundSession.getSportTypeId()));
-				trk.getTrkseg().addAll(compoundSession.getGpx().getTrk().get(0).getTrkseg());
+				trk.getTrkseg().addAll(compoundSession.getGpxSession().getGpx().getTrk().get(0).getTrkseg());
 				gpx.getTrk().add(trk);
 			}
 		}

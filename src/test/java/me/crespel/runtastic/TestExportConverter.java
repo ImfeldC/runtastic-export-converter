@@ -40,7 +40,7 @@ public class TestExportConverter {
         bound.setMinlat(new BigDecimal(20.0));
         meta.setBounds(bound);
         gpx.setMetadata(meta);
-        session.setGpx(gpx);
+        session.getGpxSession().setGpx(gpx);
 
         // Overlap session 1
         SportSession session1 = new SportSession();
@@ -53,7 +53,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(22.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
 
         // Overlap session 2
         SportSession session2 = new SportSession();
@@ -66,7 +66,7 @@ public class TestExportConverter {
         bound2.setMinlat(new BigDecimal(18.0));
         meta2.setBounds(bound2);
         gpx2.setMetadata(meta2);
-        session2.setGpx(gpx2);
+        session2.getGpxSession().setGpx(gpx2);
 
         List<SportSession> overlapSessions = new ArrayList<>();
         overlapSessions.add(session1);
@@ -106,7 +106,7 @@ public class TestExportConverter {
         bound.setMinlat(new BigDecimal(20.0));
         meta.setBounds(bound);
         gpx.setMetadata(meta);
-        session.setGpx(gpx);
+        session.getGpxSession().setGpx(gpx);
 
         SportSession session1 = new SportSession();
         GpxType gpx1 = new GpxType();
@@ -120,7 +120,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(22.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(1) Not detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "right" side and "bigger" than initial session
@@ -130,7 +130,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(2) Not detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "right" side and "one corner match top"
@@ -140,7 +140,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(50.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(3) Not detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "right" side and "one corner match below"
@@ -150,7 +150,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(4) Not detected as compound sessions!", converter.isCompound(session, session1));
     }
 
@@ -168,7 +168,7 @@ public class TestExportConverter {
         bound.setMinlat(new BigDecimal(20.0));
         meta.setBounds(bound);
         gpx.setMetadata(meta);
-        session.setGpx(gpx);
+        session.getGpxSession().setGpx(gpx);
 
         SportSession session1 = new SportSession();
         GpxType gpx1 = new GpxType();
@@ -182,7 +182,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(55.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(1) Detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "right" side and "outside below"
@@ -192,7 +192,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(5.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(2) Detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "right" side and "one corner NOT match top"
@@ -202,7 +202,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(50.1));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(3) Detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "right" side and "one corner NOT match below"
@@ -212,7 +212,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(4) Detected as compound sessions!", converter.isCompound(session, session1));
     }
 
@@ -230,7 +230,7 @@ public class TestExportConverter {
         bound.setMinlat(new BigDecimal(20.0));
         meta.setBounds(bound);
         gpx.setMetadata(meta);
-        session.setGpx(gpx);
+        session.getGpxSession().setGpx(gpx);
 
         SportSession session1 = new SportSession();
         GpxType gpx1 = new GpxType();
@@ -244,7 +244,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(22.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(1) Not detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "left" side and "bigger" than initial session
@@ -254,7 +254,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(2) Not detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "left" side and "one corner match top"
@@ -264,7 +264,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(50.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(3) Not detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "left" side and "one corner match below"
@@ -274,7 +274,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(4) Not detected as compound sessions!", converter.isCompound(session, session1));
     }
 
@@ -292,7 +292,7 @@ public class TestExportConverter {
         bound.setMinlat(new BigDecimal(20.0));
         meta.setBounds(bound);
         gpx.setMetadata(meta);
-        session.setGpx(gpx);
+        session.getGpxSession().setGpx(gpx);
 
         SportSession session1 = new SportSession();
         GpxType gpx1 = new GpxType();
@@ -306,7 +306,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(55.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(1) Detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "left" side and "outside below"
@@ -316,7 +316,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(5.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(2) Detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "left" side and "one corner NOT match top"
@@ -326,7 +326,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(50.1));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(3) Detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "left" side and "one corner NOT match below"
@@ -336,7 +336,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(4) Detected as compound sessions!", converter.isCompound(session, session1));
     }
 
@@ -354,7 +354,7 @@ public class TestExportConverter {
         bound.setMinlat(new BigDecimal(20.0));
         meta.setBounds(bound);
         gpx.setMetadata(meta);
-        session.setGpx(gpx);
+        session.getGpxSession().setGpx(gpx);
 
         SportSession session1 = new SportSession();
         GpxType gpx1 = new GpxType();
@@ -368,7 +368,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(50.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(1) Not detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "top" side and "bigger" than initial session
@@ -378,7 +378,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(50.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(2) Not detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "top" side and "one corner match on left"
@@ -388,7 +388,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(50.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(3) Not detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "top" side and "one corner match on right"
@@ -398,7 +398,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(50.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(4) Not detected as compound sessions!", converter.isCompound(session, session1));
     }
 
@@ -416,7 +416,7 @@ public class TestExportConverter {
         bound.setMinlat(new BigDecimal(20.0));
         meta.setBounds(bound);
         gpx.setMetadata(meta);
-        session.setGpx(gpx);
+        session.getGpxSession().setGpx(gpx);
 
         SportSession session1 = new SportSession();
         GpxType gpx1 = new GpxType();
@@ -430,7 +430,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(50.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(1) Detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "top" side and "outside on left"
@@ -440,7 +440,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(50.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(2) Detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "top" side and "one corner NOT match on right"
@@ -450,7 +450,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(50.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(3) Detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "top" side and "one corner NOT match on left"
@@ -460,7 +460,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(50.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(4) Detected as compound sessions!", converter.isCompound(session, session1));
     }
 
@@ -478,7 +478,7 @@ public class TestExportConverter {
         bound.setMinlat(new BigDecimal(20.0));
         meta.setBounds(bound);
         gpx.setMetadata(meta);
-        session.setGpx(gpx);
+        session.getGpxSession().setGpx(gpx);
 
         SportSession session1 = new SportSession();
         GpxType gpx1 = new GpxType();
@@ -492,7 +492,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(1) Not detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "bottom" side and "bigger" than initial session
@@ -502,7 +502,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(2) Not detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "bottom" side and "one corner match on left"
@@ -512,7 +512,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(3) Not detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "bottom" side and "one corner match on right"
@@ -522,7 +522,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertTrue("(4) Not detected as compound sessions!", converter.isCompound(session, session1));
     }
 
@@ -540,7 +540,7 @@ public class TestExportConverter {
         bound.setMinlat(new BigDecimal(20.0));
         meta.setBounds(bound);
         gpx.setMetadata(meta);
-        session.setGpx(gpx);
+        session.getGpxSession().setGpx(gpx);
 
         SportSession session1 = new SportSession();
         GpxType gpx1 = new GpxType();
@@ -554,7 +554,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(1) Detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "bottom" side and "outside on left"
@@ -564,7 +564,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(2) Detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "bottom" side and "one corner NOT match on right"
@@ -574,7 +574,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(3) Detected as compound sessions!", converter.isCompound(session, session1));
 
         // Compound session, at "bottom" side and "one corner NOT match on left"
@@ -584,7 +584,7 @@ public class TestExportConverter {
         bound1.setMinlat(new BigDecimal(11.0));
         meta1.setBounds(bound1);
         gpx1.setMetadata(meta1);
-        session1.setGpx(gpx1);
+        session1.getGpxSession().setGpx(gpx1);
         assertFalse("(4) Detected as compound sessions!", converter.isCompound(session, session1));
     }
 
@@ -665,7 +665,7 @@ public class TestExportConverter {
         bound.setMinlat(minLat);
         meta.setBounds(bound);
         gpx.setMetadata(meta);
-        session.setGpx(gpx);
+        session.getGpxSession().setGpx(gpx);
         return session;
     }
 

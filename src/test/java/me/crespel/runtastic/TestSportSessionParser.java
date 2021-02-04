@@ -2,15 +2,14 @@ package me.crespel.runtastic;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import me.crespel.runtastic.model.GpsData;
-import me.crespel.runtastic.model.HeartRateData;
+import me.crespel.runtastic.model.GpsSession;
+import me.crespel.runtastic.model.HeartRateSession;
 import me.crespel.runtastic.model.ImagesMetaData;
 import me.crespel.runtastic.model.Shoe;
 import me.crespel.runtastic.model.SportSession;
@@ -35,13 +34,13 @@ public class TestSportSessionParser {
 
 	@Test
 	public void testParseGpsData() throws JsonParseException, JsonMappingException, IOException {
-		List<GpsData> data = parser.parseGpsData(getClass().getResourceAsStream("GpsData.json"));
+		GpsSession data = parser.parseGpsSession(new File("GpsData.json"));
 		System.out.println(data);
 	}
 
 	@Test
 	public void testParseHeartRateData() throws JsonParseException, JsonMappingException, IOException {
-		List<HeartRateData> data = parser.parseHeartRateData(getClass().getResourceAsStream("HeartRateData.json"));
+		HeartRateSession data = parser.parseHeartRateSession(new File("HeartRateData.json"));
 		System.out.println(data);
 	}
 
@@ -71,7 +70,7 @@ public class TestSportSessionParser {
 
 	@Test
 	public void testParseUser() throws JsonParseException, JsonMappingException, IOException {
-		User data = parser.parseUser(getClass().getResourceAsStream("User.json"));
+		User data = parser.parseUser(new File("User.json"));
 		System.out.println(data);
 	}
 

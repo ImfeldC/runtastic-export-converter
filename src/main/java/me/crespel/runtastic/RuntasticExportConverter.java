@@ -131,9 +131,9 @@ public class RuntasticExportConverter {
 		Integer imageCount = 0;
 		Integer minDistance = Integer.MAX_VALUE, maxDistance = 0, totDistance = 0;
 		for (SportSession session : fullsessions) {
-			if (session.getGpx() != null)
+			if (session.getGpxSession() != null)
 				gpxSessionCount += 1;
-			if (session.getHeartRateData() != null)
+			if (session.getHeartRateSession() != null)
 				heartRateDataCount += 1;
 			if (session.getImages() != null) {
 				imageSessionCount += 1;
@@ -193,7 +193,7 @@ public class RuntasticExportConverter {
 			System.out.println("      Start: " + sdf.format(session.getStartTime()) + ", End: " + sdf.format(session.getEndTime()) + ", Created: " + sdf.format(session.getCreatedAt()) + ", Updated: " + sdf.format(session.getUpdatedAt()));
 			System.out.println("      Elevation: (+) " + session.getElevationGain() + " m , (-) " + session.getElevationLoss() + " m  /  " + ( session.getLatitude() != null ? "Latitude: " + session.getLatitude() + ", Longitude: " + session.getLongitude() + "  ( http://maps.google.com/maps?q=" + session.getLatitude() + "," + session.getLongitude() + " )" : "No GPS information available.") );
 			System.out.println("      Notes: " + session.getNotes());
-			System.out.println("      Waypoints: " + ((session.getGpsData() == null) ? "0" : session.getGpsData().size()) + " JSON points, " + ((session.getGpx() == null) ? "0" : session.getGpx().getTrk().get(0).getTrkseg().get(0).getTrkpt().size()) + " GPX points.");
+			System.out.println("      Waypoints: " + ((session.getGpsSession() == null) ? "0" : session.getGpsSession().getGpsData().size()) + " JSON points, " + ((session.getGpxSession() == null) ? "0" : session.getGpxSession().getGpx().getTrk().get(0).getTrkseg().get(0).getTrkpt().size()) + " GPX points.");
 			System.out.println("      Tags: " + ((session.getTags() == null) ? "none" : session.getTags().toString()) + " / SortTag=" + session.getSortTag());
 			System.out.println("      Photos:" + (session.getSessionAlbum() != null ? session.getSessionAlbum().getPhotosIds().toString() : "none"));
 			if (session.getImages() != null) {
@@ -308,7 +308,7 @@ public class RuntasticExportConverter {
 		System.out.println("Sessions with 'empty' GPX track(s) ...");
 		Integer emptyGPXTrackSessionCount = 0;
 		for (SportSession session : sessions) {
-			if (session.getGpx() == null) {
+			if (session.getGpxSession() == null) {
 				System.out.println("      " + sdf.format(session.getStartTime()) + " - ID: " + session.getId() + ", Sport Type: " + session.getSportTypeId() + ", duration: " + Duration.ofMillis(session.getDuration()).toString() + " (" + session.getDuration() / 60000 + " min), Notes: '" + session.getNotes() + "'");
 				emptyGPXTrackSessionCount += 1;
 			}
@@ -363,8 +363,8 @@ public class RuntasticExportConverter {
 				}
 
 				// check bounds ..
-				if((session.getGpx()!=null) && (session.getGpx().getMetadata()!=null) && (session.getGpx().getMetadata().getBounds()!=null)) {
-					BoundsType sessionBound = session.getGpx().getMetadata().getBounds();
+				if((session.getGpxSession()!=null) && (session.getGpxSession().getGpx().getMetadata()!=null) && (session.getGpxSession().getGpx().getMetadata().getBounds()!=null)) {
+					BoundsType sessionBound = session.getGpxSession().getGpx().getMetadata().getBounds();
 					if ((session.getInnerBound() != null) && (session.getOuterBound() != null) ) {
 						if(sessionBound.getMinlat().compareTo(session.getInnerBound().getMinlat()) == 1 ) {
 							System.out.println("            ----> Inner bound mismatch, getMinlat: ID=" + session.getId() + "  with session bound: " + sessionBound.getMinlat() + " vs. overlap bound: " + session.getInnerBound().getMinlat() + "." );
@@ -410,18 +410,18 @@ public class RuntasticExportConverter {
 			if( (compoundSessions!=null) && (compoundSessions.size() > 0) ) {
 				compoundSessionCount+=1;
 				if( full ) System.out.println("      " + sdf.format(session.getStartTime())  + "["+compoundSessionCount+"] - ID: " + session.getId() + ", Sport Type: " + session.getSportTypeId() + ", Notes: '" + session.getNotes() 
-				+ "', Bounds[MinLat="+session.getGpx().getMetadata().getBounds().getMinlat()
-				+ ", MaxLat="+session.getGpx().getMetadata().getBounds().getMaxlat()
-				+ ", MinLon="+session.getGpx().getMetadata().getBounds().getMinlon()
-				+ ", MaxLon="+session.getGpx().getMetadata().getBounds().getMaxlon()+"]");
+				+ "', Bounds[MinLat="+session.getGpxSession().getGpx().getMetadata().getBounds().getMinlat()
+				+ ", MaxLat="+session.getGpxSession().getGpx().getMetadata().getBounds().getMaxlat()
+				+ ", MinLon="+session.getGpxSession().getGpx().getMetadata().getBounds().getMinlon()
+				+ ", MaxLon="+session.getGpxSession().getGpx().getMetadata().getBounds().getMaxlon()+"]");
 			if( full ) {
 				for( SportSession compoundSession : compoundSessions ) {
 					System.out.println("            ID: " + compoundSession.getId() + ", Sport Type: " + compoundSession.getSportTypeId() 
 					+ ", Notes: '" + compoundSession.getNotes() 
-					+ "', Bounds[MinLat="+compoundSession.getGpx().getMetadata().getBounds().getMinlat()
-					+ ", MaxLat="+compoundSession.getGpx().getMetadata().getBounds().getMaxlat()
-					+ ", MinLon="+compoundSession.getGpx().getMetadata().getBounds().getMinlon()
-					+ ", MaxLon="+compoundSession.getGpx().getMetadata().getBounds().getMaxlon()+"]");
+					+ "', Bounds[MinLat="+compoundSession.getGpxSession().getGpx().getMetadata().getBounds().getMinlat()
+					+ ", MaxLat="+compoundSession.getGpxSession().getGpx().getMetadata().getBounds().getMaxlat()
+					+ ", MinLon="+compoundSession.getGpxSession().getGpx().getMetadata().getBounds().getMinlon()
+					+ ", MaxLon="+compoundSession.getGpxSession().getGpx().getMetadata().getBounds().getMaxlon()+"]");
 				}
 			}
 		}
