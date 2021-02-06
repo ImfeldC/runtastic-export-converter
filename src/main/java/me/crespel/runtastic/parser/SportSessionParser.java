@@ -187,6 +187,7 @@ public class SportSessionParser {
 		return user;
 	}
 
+	
 	private File getFile(File file)
 	{
 		if (file.exists()) {

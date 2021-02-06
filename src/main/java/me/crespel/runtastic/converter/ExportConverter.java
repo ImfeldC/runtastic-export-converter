@@ -2,13 +2,16 @@ package me.crespel.runtastic.converter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import static java.nio.file.StandardCopyOption.*;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +28,7 @@ import me.crespel.runtastic.model.SportSession;
 import me.crespel.runtastic.model.SportSessionAlbums;
 import me.crespel.runtastic.model.User;
 import me.crespel.runtastic.parser.SportSessionParser;
+import me.crespel.runtastic.util.TeePrintStream;
 
 /**
  * Export directory converter.
@@ -219,6 +223,15 @@ public class ExportConverter {
 						Files.copy(source, target, REPLACE_EXISTING);
 					}
 
+					if( session.getUser() != null ) {
+						// copy heart rate session data file
+						Path target = Paths.get(sessionDestFolder.getAbsolutePath()+"\\"+FilenameUtils.getName(session.getUser().getFileName()));
+						Path source = Paths.get(session.getUser().getFileName());
+						Files.copy(source, target, REPLACE_EXISTING);
+					}
+
+					FileOutputStream infofile = new FileOutputStream(sessionDestFolder.getCanonicalFile() + "\\info.txt");
+					printInfo(session, infofile);
 				}
 			} catch (IOException e) {
 				throw new RuntimeException(e);
@@ -226,6 +239,40 @@ public class ExportConverter {
 		});
 		return sessions.size();
 	}
+
+
+	public void printInfo(SportSession session, FileOutputStream filestream) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		TeePrintStream tee = new TeePrintStream(filestream==null ? System.out : filestream,filestream==null ? null : System.out);
+		if (session != null) {
+			tee.println(sdf.format(session.getStartTime()) + " - ID: " + session.getId());
+			tee.println("      Sport Type: " + session.getSportTypeId() + ", Surface Type: "	+ session.getSurfaceId() + ", Feeling Id: " + session.getSubjectiveFeelingId());
+			tee.println("      Duration: " + Duration.ofMillis(session.getDuration()).toString() + " (" + session.getDuration() / 60000 + " min)");
+			tee.println("      Distance: " + (session.getDistance() != null ? session.getDistance() / 1000.0 : "n/a") + " km, Calories: " + session.getCalories());
+			tee.println("      Avg Pace: " + (session.getDurationPerKm() != null ? session.getDurationPerKm() / 60000.0 : "n/a") + " min/km");
+			tee.println("      Avg Speed: " + session.getAverageSpeed() + " km/h, Max Speed: " + session.getMaxSpeed() + " km/h");
+			tee.println("      Start: " + sdf.format(session.getStartTime()) + ", End: " + sdf.format(session.getEndTime()) + ", Created: " + sdf.format(session.getCreatedAt()) + ", Updated: " + sdf.format(session.getUpdatedAt()));
+			tee.println("      Elevation: (+) " + session.getElevationGain() + " m , (-) " + session.getElevationLoss() + " m  /  " + ( session.getLatitude() != null ? "Latitude: " + session.getLatitude() + ", Longitude: " + session.getLongitude() + "  ( http://maps.google.com/maps?q=" + session.getLatitude() + "," + session.getLongitude() + " )" : "No GPS information available.") );
+			tee.println("      Notes: " + session.getNotes());
+			tee.println("      Waypoints: " + ((session.getGpsSession() == null) ? "0" : session.getGpsSession().getGpsData().size()) + " JSON points, " + ((session.getGpxSession() == null) ? "0" : (session.getGpxSession().getGpx().getTrk()==null) ? "0" : (session.getGpxSession().getGpx().getTrk().size()==0)  ? "0" : session.getGpxSession().getGpx().getTrk().get(0).getTrkseg().get(0).getTrkpt().size()) + " GPX points.");
+			tee.println("      Tags: " + ((session.getTags() == null) ? "none" : session.getTags().toString()) + " / SortTag=" + session.getSortTag());
+			tee.println("      Photos:" + (session.getSessionAlbum() != null ? session.getSessionAlbum().getPhotosIds().toString() : "none"));
+			if (session.getImages() != null) {
+				for (ImagesMetaData image : session.getImages()) {
+					tee.println("             [" + image.getId() + ".jpg] " + sdf.format(image.getCreatedAt()) + ": " + image.getDescription() + ( image.getLatitude() != null ? " ( http://maps.google.com/maps?q=" + image.getLatitude() + "," + image.getLongitude() + " )" : "") );
+				}
+			}
+			if (session.getUser() != null) {
+				User user = session.getUser();
+				tee.println("      Name: " + user.getFirstName() + " " + user.getLastName() + ",  Birthday: " + user.getBirthday() + ",  City: " + user.getCityName());
+				tee.println("      Mail: " + user.getEmail() + " (" + user.getFbProxiedEMail() + ")");
+				tee.println("      Gender: " + user.getGender() + ", Height: " + user.getHeight() + ", Weight: " + user.getWeight() + ", Language: " + user.getLanguage());
+				tee.println("      Created At: " + sdf.format(user.getCreatedAt()) + ",  Confirmed At: " + sdf.format(user.getConfirmedAt()) + ",  Last Sign-in At: " + sdf.format(user.getLastSignInAt()) + ",  Updated At: " + sdf.format(user.getUpdatedAt()));
+			}
+		}
+		tee.close();
+	}
+
 
 
 	// Loop through all sport session and add "overlapping" session to each sport session

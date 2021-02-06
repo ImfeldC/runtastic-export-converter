@@ -181,35 +181,10 @@ public class RuntasticExportConverter {
 	}
 
 	protected void doInfo(File path, String id) throws FileNotFoundException, IOException {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		SportSession session = converter.getSportSession(path, id);
-		if (session != null) {
-			System.out.println(sdf.format(session.getStartTime()) + " - ID: " + session.getId());
-			System.out.println("      Sport Type: " + session.getSportTypeId() + ", Surface Type: "	+ session.getSurfaceId() + ", Feeling Id: " + session.getSubjectiveFeelingId());
-			System.out.println("      Duration: " + Duration.ofMillis(session.getDuration()).toString() + " (" + session.getDuration() / 60000 + " min)");
-			System.out.println("      Distance: " + (session.getDistance() != null ? session.getDistance() / 1000.0 : "n/a") + " km, Calories: " + session.getCalories());
-			System.out.println("      Avg Pace: " + (session.getDurationPerKm() != null ? session.getDurationPerKm() / 60000.0 : "n/a") + " min/km");
-			System.out.println("      Avg Speed: " + session.getAverageSpeed() + " km/h, Max Speed: " + session.getMaxSpeed() + " km/h");
-			System.out.println("      Start: " + sdf.format(session.getStartTime()) + ", End: " + sdf.format(session.getEndTime()) + ", Created: " + sdf.format(session.getCreatedAt()) + ", Updated: " + sdf.format(session.getUpdatedAt()));
-			System.out.println("      Elevation: (+) " + session.getElevationGain() + " m , (-) " + session.getElevationLoss() + " m  /  " + ( session.getLatitude() != null ? "Latitude: " + session.getLatitude() + ", Longitude: " + session.getLongitude() + "  ( http://maps.google.com/maps?q=" + session.getLatitude() + "," + session.getLongitude() + " )" : "No GPS information available.") );
-			System.out.println("      Notes: " + session.getNotes());
-			System.out.println("      Waypoints: " + ((session.getGpsSession() == null) ? "0" : session.getGpsSession().getGpsData().size()) + " JSON points, " + ((session.getGpxSession() == null) ? "0" : session.getGpxSession().getGpx().getTrk().get(0).getTrkseg().get(0).getTrkpt().size()) + " GPX points.");
-			System.out.println("      Tags: " + ((session.getTags() == null) ? "none" : session.getTags().toString()) + " / SortTag=" + session.getSortTag());
-			System.out.println("      Photos:" + (session.getSessionAlbum() != null ? session.getSessionAlbum().getPhotosIds().toString() : "none"));
-			if (session.getImages() != null) {
-				for (ImagesMetaData image : session.getImages()) {
-					System.out.println("             [" + image.getId() + ".jpg] " + sdf.format(image.getCreatedAt()) + ": " + image.getDescription() + ( image.getLatitude() != null ? " ( http://maps.google.com/maps?q=" + image.getLatitude() + "," + image.getLongitude() + " )" : "") );
-				}
-			}
-			if (session.getUser() != null) {
-				User user = session.getUser();
-				System.out.println("      Name: " + user.getFirstName() + " " + user.getLastName() + ",  Birthday: " + user.getBirthday() + ",  City: " + user.getCityName());
-				System.out.println("      Mail: " + user.getEmail() + " (" + user.getFbProxiedEMail() + ")");
-				System.out.println("      Gender: " + user.getGender() + ", Height: " + user.getHeight() + ", Weight: " + user.getWeight() + ", Language: " + user.getLanguage());
-				System.out.println("      Created At: " + sdf.format(user.getCreatedAt()) + ",  Confirmed At: " + sdf.format(user.getConfirmedAt()) + ",  Last Sign-in At: " + sdf.format(user.getLastSignInAt()) + ",  Updated At: " + sdf.format(user.getUpdatedAt()));
-			}
-		}
+		converter.printInfo(session, null);
 	}
+
 
 	protected void doPhoto(File path, String id) throws FileNotFoundException, IOException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
